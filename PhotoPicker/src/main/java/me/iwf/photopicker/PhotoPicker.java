@@ -28,6 +28,11 @@ public class PhotoPicker {
   public final static String EXTRA_GRID_COLUMN     = "column";
   public final static String EXTRA_ORIGINAL_PHOTOS = "ORIGINAL_PHOTOS";
   public final static String EXTRA_PREVIEW_ENABLED = "PREVIEW_ENABLED";
+  
+  public final static String EXTRA_PICK_MEDIA       = "PICK_MEDIA";
+
+  public final static String PICK_PHOTO       = "PICK_PHOTO";
+  public final static String PICK_VIDEO       = "PICK_VIDEO";
 
   public static PhotoPickerBuilder builder() {
     return new PhotoPickerBuilder();
@@ -96,6 +101,11 @@ public class PhotoPicker {
      */
     public void start(@NonNull Activity activity) {
       start(activity, REQUEST_CODE);
+    }
+    
+    public PhotoPickerBuilder setPickMedia(String media) {
+      mPickerOptionsBundle.putString(EXTRA_PICK_MEDIA, media);
+      return this;
     }
 
     public PhotoPickerBuilder setPhotoCount(int photoCount) {
