@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         PhotoPicker.builder()
-                .setPickMedia(PhotoPicker.PICK_PHOTO)
                 .setPhotoCount(1)
                 .setGridColumnCount(3)
                 .start(MainActivity.this);

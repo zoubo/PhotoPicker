@@ -41,7 +41,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
 
   private int maxCount = DEFAULT_MAX_COUNT;
 
-  private String pickMedia;
+  private String pickMedia=PICK_PHOTO;
 
   /**
    * to prevent multiple calls to inflate menu
@@ -77,7 +77,10 @@ public class PhotoPickerActivity extends AppCompatActivity {
       actionBar.setElevation(25);
     }
 
-    pickMedia = getIntent().getStringExtra(EXTRA_PICK_MEDIA);
+    if(null!=getIntent().getStringExtra(EXTRA_PICK_MEDIA)){
+
+      pickMedia =getIntent().getStringExtra(EXTRA_PICK_MEDIA);
+    }
 
     if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
       setTitle(R.string.__picker_title_image);
