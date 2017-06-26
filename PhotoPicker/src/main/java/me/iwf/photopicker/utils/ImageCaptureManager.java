@@ -28,6 +28,7 @@ public class ImageCaptureManager {
 
   private final static String CAPTURED_PHOTO_PATH_KEY = "mCurrentPhotoPath";
   public static final int REQUEST_TAKE_PHOTO = 1;
+  public static final int REQUEST_TAKE_VEDIO = 2;
 
   private String mCurrentPhotoPath;
   private Context mContext;
@@ -56,6 +57,26 @@ public class ImageCaptureManager {
     return image;
   }
 
+  private File createVedioFile() throws IOException {
+    // Create an image file name
+    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
+    String vedioFileName = "JPEG_" + timeStamp + ".mp4";
+    File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+
+    if (!storageDir.exists()) {
+      if (!storageDir.mkdir()) {
+        Log.e("TAG", "Throwing Errors....");
+        throw new IOException();
+      }
+    }
+
+    File vedio = new File(storageDir, vedioFileName);
+
+    // Save a file: path for use with ACTION_VIEW intents
+    mCurrentPhotoPath = vedio.getAbsolutePath();
+    return vedio;
+  }
+
 
   public Intent dispatchTakePictureIntent() throws IOException {
     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -63,6 +84,29 @@ public class ImageCaptureManager {
     if (takePictureIntent.resolveActivity(mContext.getPackageManager()) != null) {
       // Create the File where the photo should go
       File file = createImageFile();
+      Uri photoFile;
+      if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        String authority = mContext.getApplicationInfo().packageName + ".provider";
+        photoFile = FileProvider.getUriForFile(this.mContext.getApplicationContext(), authority, file);
+      } else {
+        photoFile = Uri.fromFile(file);
+      }
+
+      // Continue only if the File was successfully created
+      if (photoFile != null) {
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile);
+      }
+    }
+    return takePictureIntent;
+  }
+
+  public Intent dispatchTakeVedioIntent() throws IOException {
+    Intent takePictureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+    takePictureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30);
+    // Ensure that there's a camera activity to handle the intent
+    if (takePictureIntent.resolveActivity(mContext.getPackageManager()) != null) {
+      // Create the File where the photo should go
+      File file = createVedioFile();
       Uri photoFile;
       if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         String authority = mContext.getApplicationInfo().packageName + ".provider";

@@ -3,6 +3,7 @@ package me.iwf.photopicker;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,20 +25,27 @@ import static me.iwf.photopicker.PhotoPicker.DEFAULT_MAX_COUNT;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_GRID_COLUMN;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_MAX_COUNT;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_ORIGINAL_PHOTOS;
+import static me.iwf.photopicker.PhotoPicker.EXTRA_PICK_MEDIA;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_PREVIEW_ENABLED;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_SHOW_CAMERA;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_SHOW_GIF;
 import static me.iwf.photopicker.PhotoPicker.KEY_SELECTED_PHOTOS;
+import static me.iwf.photopicker.PhotoPicker.PICK_PHOTO;
+import static me.iwf.photopicker.PhotoPicker.PICK_VIDEO;
 
 public class PhotoPickerActivity extends AppCompatActivity {
 
   private PhotoPickerFragment pickerFragment;
-  private ImagePagerFragment imagePagerFragment;
+  private Fragment fragment;
   private MenuItem menuDoneItem;
 
   private int maxCount = DEFAULT_MAX_COUNT;
 
-  /** to prevent multiple calls to inflate menu */
+  private String pickMedia;
+
+  /**
+   * to prevent multiple calls to inflate menu
+   */
   private boolean menuIsInflated = false;
 
   private boolean showGif = false;
@@ -45,12 +53,13 @@ public class PhotoPickerActivity extends AppCompatActivity {
   private ArrayList<String> originalPhotos = null;
 
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    boolean showCamera      = getIntent().getBooleanExtra(EXTRA_SHOW_CAMERA, true);
-    boolean showGif         = getIntent().getBooleanExtra(EXTRA_SHOW_GIF, false);
-    boolean previewEnabled  = getIntent().getBooleanExtra(EXTRA_PREVIEW_ENABLED, true);
+    boolean showCamera = getIntent().getBooleanExtra(EXTRA_SHOW_CAMERA, true);
+    boolean showGif = getIntent().getBooleanExtra(EXTRA_SHOW_GIF, false);
+    boolean previewEnabled = getIntent().getBooleanExtra(EXTRA_PREVIEW_ENABLED, true);
 
     setShowGif(showGif);
 
@@ -58,7 +67,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
 
     Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(mToolbar);
-    setTitle(R.string.__picker_title);
+
 
     ActionBar actionBar = getSupportActionBar();
 
@@ -68,6 +77,14 @@ public class PhotoPickerActivity extends AppCompatActivity {
       actionBar.setElevation(25);
     }
 
+    pickMedia = getIntent().getStringExtra(EXTRA_PICK_MEDIA);
+
+    if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
+      setTitle(R.string.__picker_title_image);
+    } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
+      setTitle(R.string.__picker_title_video);
+    }
+
     maxCount = getIntent().getIntExtra(EXTRA_MAX_COUNT, DEFAULT_MAX_COUNT);
     columnNumber = getIntent().getIntExtra(EXTRA_GRID_COLUMN, DEFAULT_COLUMN_NUMBER);
     originalPhotos = getIntent().getStringArrayListExtra(EXTRA_ORIGINAL_PHOTOS);
@@ -75,16 +92,17 @@ public class PhotoPickerActivity extends AppCompatActivity {
     pickerFragment = (PhotoPickerFragment) getSupportFragmentManager().findFragmentByTag("tag");
     if (pickerFragment == null) {
       pickerFragment = PhotoPickerFragment
-          .newInstance(showCamera, showGif, previewEnabled, columnNumber, maxCount, originalPhotos);
+              .newInstance(pickMedia, showCamera, showGif, previewEnabled, columnNumber, maxCount, originalPhotos);
       getSupportFragmentManager()
-          .beginTransaction()
-          .replace(R.id.container, pickerFragment, "tag")
-          .commit();
+              .beginTransaction()
+              .replace(R.id.container, pickerFragment, "tag")
+              .commit();
       getSupportFragmentManager().executePendingTransactions();
     }
 
     pickerFragment.getPhotoGridAdapter().setOnItemCheckListener(new OnItemCheckListener() {
-      @Override public boolean onItemCheck(int position, Photo photo, final int selectedItemCount) {
+      @Override
+      public boolean onItemCheck(int position, Photo photo, final int selectedItemCount) {
 
         menuDoneItem.setEnabled(selectedItemCount > 0);
 
@@ -99,7 +117,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
 
         if (selectedItemCount > maxCount) {
           Toast.makeText(getActivity(), getString(R.string.__picker_over_max_count_tips, maxCount),
-              LENGTH_LONG).show();
+                  LENGTH_LONG).show();
           return false;
         }
         menuDoneItem.setTitle(getString(R.string.__picker_done_with_count, selectedItemCount, maxCount));
@@ -114,31 +132,33 @@ public class PhotoPickerActivity extends AppCompatActivity {
    * Overriding this method allows us to run our exit animation first, then exiting
    * the activity when it complete.
    */
-  @Override public void onBackPressed() {
-    if (imagePagerFragment != null && imagePagerFragment.isVisible()) {
-      imagePagerFragment.runExitAnimation(new Runnable() {
-        public void run() {
-          if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-          }
-        }
-      });
+  @Override
+  public void onBackPressed() {
+    if (fragment != null && fragment.isVisible()) {
+//            fragment.runExitAnimation(new Runnable() {
+//                public void run() {
+//                    if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+//                        getSupportFragmentManager().popBackStack();
+//                    }
+//                }
+//            });
     } else {
       super.onBackPressed();
     }
   }
 
 
-  public void addImagePagerFragment(ImagePagerFragment imagePagerFragment) {
-    this.imagePagerFragment = imagePagerFragment;
+  public void addImagePagerFragment(Fragment fragment) {
+    this.fragment = fragment;
     getSupportFragmentManager()
-        .beginTransaction()
-        .replace(R.id.container, this.imagePagerFragment)
-        .addToBackStack(null)
-        .commit();
+            .beginTransaction()
+            .replace(R.id.container, this.fragment)
+            .addToBackStack(null)
+            .commit();
   }
 
-  @Override public boolean onCreateOptionsMenu(Menu menu) {
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
     if (!menuIsInflated) {
       getMenuInflater().inflate(R.menu.__picker_menu_picker, menu);
       menuDoneItem = menu.findItem(R.id.done);

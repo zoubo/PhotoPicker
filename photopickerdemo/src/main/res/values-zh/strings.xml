@@ -2,6 +2,7 @@
 
     <string name="app_name">PhotoPickerDemo</string>
     <string name="pick_photo">选择图片</string>
+    <string name="pick_video">选择视频</string>
     <string name="pick_photo_without_camera">选择图片（不带拍照按钮且点击不预览图片）</string>
     <string name="pick_one_photo">选择单张图片</string>
     <string name="pick_photo_gif">选择gif图片</string>

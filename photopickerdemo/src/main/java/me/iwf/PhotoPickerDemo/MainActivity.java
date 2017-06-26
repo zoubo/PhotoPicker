@@ -38,12 +38,24 @@ public class MainActivity extends AppCompatActivity {
     recyclerView.setLayoutManager(new StaggeredGridLayoutManager(4, OrientationHelper.VERTICAL));
     recyclerView.setAdapter(photoAdapter);
 
-    findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+    findViewById(R.id.takephoto).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         PhotoPicker.builder()
-                .setPhotoCount(9)
-                .setGridColumnCount(4)
+                .setPickMedia(PhotoPicker.PICK_PHOTO)
+                .setPhotoCount(1)
+                .setGridColumnCount(3)
+                .start(MainActivity.this);
+      }
+    });
+
+    findViewById(R.id.takevideo).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        PhotoPicker.builder()
+                .setPickMedia(PhotoPicker.PICK_VIDEO)
+                .setPhotoCount(1)
+                .setGridColumnCount(3)
                 .start(MainActivity.this);
       }
     });
@@ -80,30 +92,30 @@ public class MainActivity extends AppCompatActivity {
 
     recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this,
             new RecyclerItemClickListener.OnItemClickListener() {
-      @Override
-      public void onItemClick(View view, int position) {
-        if (photoAdapter.getItemViewType(position) == PhotoAdapter.TYPE_ADD) {
-          PhotoPicker.builder()
-                  .setPhotoCount(PhotoAdapter.MAX)
-                  .setShowCamera(true)
-                  .setPreviewEnabled(false)
-                  .setSelected(selectedPhotos)
-                  .start(MainActivity.this);
-        } else {
-          PhotoPreview.builder()
-                  .setPhotos(selectedPhotos)
-                  .setCurrentItem(position)
-                  .start(MainActivity.this);
-        }
-      }
-    }));
+              @Override
+              public void onItemClick(View view, int position) {
+                if (photoAdapter.getItemViewType(position) == PhotoAdapter.TYPE_ADD) {
+                  PhotoPicker.builder()
+                          .setPhotoCount(PhotoAdapter.MAX)
+                          .setShowCamera(true)
+                          .setPreviewEnabled(false)
+                          .setSelected(selectedPhotos)
+                          .start(MainActivity.this);
+                } else {
+                  PhotoPreview.builder()
+                          .setPhotos(selectedPhotos)
+                          .setCurrentItem(position)
+                          .start(MainActivity.this);
+                }
+              }
+            }));
   }
 
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
     if (resultCode == RESULT_OK &&
-        (requestCode == PhotoPicker.REQUEST_CODE || requestCode == PhotoPreview.REQUEST_CODE)) {
+            (requestCode == PhotoPicker.REQUEST_CODE || requestCode == PhotoPreview.REQUEST_CODE)) {
 
       List<String> photos = null;
       if (data != null) {

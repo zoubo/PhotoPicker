@@ -43,8 +43,11 @@ import me.iwf.photopicker.utils.PermissionsUtils;
 
 import static android.app.Activity.RESULT_OK;
 import static me.iwf.photopicker.PhotoPicker.DEFAULT_COLUMN_NUMBER;
+import static me.iwf.photopicker.PhotoPicker.EXTRA_PICK_MEDIA;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_PREVIEW_ENABLED;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_SHOW_GIF;
+import static me.iwf.photopicker.PhotoPicker.PICK_PHOTO;
+import static me.iwf.photopicker.PhotoPicker.PICK_VIDEO;
 import static me.iwf.photopicker.utils.MediaStoreHelper.INDEX_ALL_PHOTOS;
 
 /**
@@ -73,9 +76,12 @@ public class PhotoPickerFragment extends Fragment {
   private ListPopupWindow listPopupWindow;
   private RequestManager mGlideRequestManager;
 
-  public static PhotoPickerFragment newInstance(boolean showCamera, boolean showGif,
-      boolean previewEnable, int column, int maxCount, ArrayList<String> originalPhotos) {
+  private String pickMedia;
+
+  public static PhotoPickerFragment newInstance(String pickMedia, boolean showCamera, boolean showGif,
+                                                boolean previewEnable, int column, int maxCount, ArrayList<String> originalPhotos) {
     Bundle args = new Bundle();
+    args.putString(EXTRA_PICK_MEDIA, pickMedia);
     args.putBoolean(EXTRA_CAMERA, showCamera);
     args.putBoolean(EXTRA_GIF, showGif);
     args.putBoolean(EXTRA_PREVIEW_ENABLED, previewEnable);
@@ -87,7 +93,8 @@ public class PhotoPickerFragment extends Fragment {
     return fragment;
   }
 
-  @Override public void onCreate(Bundle savedInstanceState) {
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     setRetainInstance(true);
@@ -105,29 +112,50 @@ public class PhotoPickerFragment extends Fragment {
     photoGridAdapter.setShowCamera(showCamera);
     photoGridAdapter.setPreviewEnable(previewEnable);
 
-    listAdapter  = new PopupDirectoryListAdapter(mGlideRequestManager, directories);
+    listAdapter = new PopupDirectoryListAdapter(mGlideRequestManager, directories);
 
     Bundle mediaStoreArgs = new Bundle();
 
     boolean showGif = getArguments().getBoolean(EXTRA_GIF);
     mediaStoreArgs.putBoolean(EXTRA_SHOW_GIF, showGif);
-    MediaStoreHelper.getPhotoDirs(getActivity(), mediaStoreArgs,
-        new MediaStoreHelper.PhotosResultCallback() {
-          @Override public void onResultCallback(List<PhotoDirectory> dirs) {
-            directories.clear();
-            directories.addAll(dirs);
-            photoGridAdapter.notifyDataSetChanged();
-            listAdapter.notifyDataSetChanged();
-            adjustHeight();
-          }
-        });
+
+    pickMedia = getArguments().getString(EXTRA_PICK_MEDIA);
+
+    if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
+      MediaStoreHelper.getPhotoDirs(getActivity(), mediaStoreArgs,
+              new MediaStoreHelper.PhotosResultCallback() {
+                @Override
+                public void onResultCallback(List<PhotoDirectory> dirs) {
+                  directories.clear();
+                  directories.addAll(dirs);
+                  photoGridAdapter.notifyDataSetChanged();
+                  listAdapter.notifyDataSetChanged();
+                  adjustHeight();
+                }
+              });
+    } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
+
+      MediaStoreHelper.getVideoDirs(getActivity(), mediaStoreArgs,
+              new MediaStoreHelper.PhotosResultCallback() {
+                @Override
+                public void onResultCallback(List<PhotoDirectory> dirs) {
+                  directories.clear();
+                  directories.addAll(dirs);
+                  photoGridAdapter.notifyDataSetChanged();
+                  listAdapter.notifyDataSetChanged();
+                  adjustHeight();
+                }
+              });
+    }
+
 
     captureManager = new ImageCaptureManager(getActivity());
   }
 
 
-  @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
 
     final View rootView = inflater.inflate(R.layout.__picker_fragment_photo_picker, container, false);
 
@@ -139,6 +167,12 @@ public class PhotoPickerFragment extends Fragment {
     recyclerView.setItemAnimator(new DefaultItemAnimator());
 
     final Button btSwitchDirectory = (Button) rootView.findViewById(R.id.button);
+    if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
+      btSwitchDirectory.setText(R.string.__picker_all_image);
+    } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
+
+      btSwitchDirectory.setText(R.string.__picker_all_video);
+    }
 
     listPopupWindow = new ListPopupWindow(getActivity());
     listPopupWindow.setWidth(ListPopupWindow.MATCH_PARENT);
@@ -148,7 +182,8 @@ public class PhotoPickerFragment extends Fragment {
     listPopupWindow.setDropDownGravity(Gravity.BOTTOM);
 
     listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         listPopupWindow.dismiss();
 
         PhotoDirectory directory = directories.get(position);
@@ -161,31 +196,48 @@ public class PhotoPickerFragment extends Fragment {
     });
 
     photoGridAdapter.setOnPhotoClickListener(new OnPhotoClickListener() {
-      @Override public void onClick(View v, int position, boolean showCamera) {
+      @Override
+      public void onClick(View v, int position, boolean showCamera) {
         final int index = showCamera ? position - 1 : position;
 
         List<String> photos = photoGridAdapter.getCurrentPhotoPaths();
 
-        int[] screenLocation = new int[2];
-        v.getLocationOnScreen(screenLocation);
-        ImagePagerFragment imagePagerFragment =
-            ImagePagerFragment.newInstance(photos, index, screenLocation, v.getWidth(),
-                v.getHeight());
+        if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
+          int[] screenLocation = new int[2];
+          v.getLocationOnScreen(screenLocation);
 
-        ((PhotoPickerActivity) getActivity()).addImagePagerFragment(imagePagerFragment);
+          ImagePagerFragment imagePagerFragment =
+                  ImagePagerFragment.newInstance(photos, index, screenLocation, v.getWidth(),
+                          v.getHeight());
+
+          ((PhotoPickerActivity) getActivity()).addImagePagerFragment(imagePagerFragment);
+        } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
+          VideoPlayFragment videoPlayFragment = VideoPlayFragment.newInstance(photos.get(position));
+          ((PhotoPickerActivity) getActivity()).addImagePagerFragment(videoPlayFragment);
+        }
+
+
       }
     });
 
     photoGridAdapter.setOnCameraClickListener(new OnClickListener() {
-      @Override public void onClick(View view) {
+      @Override
+      public void onClick(View view) {
         if (!PermissionsUtils.checkCameraPermission(PhotoPickerFragment.this)) return;
         if (!PermissionsUtils.checkWriteStoragePermission(PhotoPickerFragment.this)) return;
-        openCamera();
+        if (pickMedia.equalsIgnoreCase(PICK_PHOTO)) {
+          takePhoto();
+
+        } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
+
+          takeVedio();
+        }
       }
     });
 
     btSwitchDirectory.setOnClickListener(new OnClickListener() {
-      @Override public void onClick(View v) {
+      @Override
+      public void onClick(View v) {
 
         if (listPopupWindow.isShowing()) {
           listPopupWindow.dismiss();
@@ -198,7 +250,8 @@ public class PhotoPickerFragment extends Fragment {
 
 
     recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-      @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
         // Log.d(">>> Picker >>>", "dy = " + dy);
         if (Math.abs(dy) > SCROLL_THRESHOLD) {
@@ -207,7 +260,9 @@ public class PhotoPickerFragment extends Fragment {
           resumeRequestsIfNotDestroyed();
         }
       }
-      @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+
+      @Override
+      public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
           resumeRequestsIfNotDestroyed();
         }
@@ -217,7 +272,7 @@ public class PhotoPickerFragment extends Fragment {
     return rootView;
   }
 
-  private void openCamera() {
+  private void takePhoto() {
     try {
       Intent intent = captureManager.dispatchTakePictureIntent();
       startActivityForResult(intent, ImageCaptureManager.REQUEST_TAKE_PHOTO);
@@ -229,8 +284,36 @@ public class PhotoPickerFragment extends Fragment {
     }
   }
 
-  @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+  private void takeVedio() {
+    try {
+      Intent intent = captureManager.dispatchTakeVedioIntent();
+      startActivityForResult(intent, ImageCaptureManager.REQUEST_TAKE_VEDIO);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ActivityNotFoundException e) {
+      // TODO No Activity Found to handle Intent
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == ImageCaptureManager.REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+
+      if (captureManager == null) {
+        FragmentActivity activity = getActivity();
+        captureManager = new ImageCaptureManager(activity);
+      }
+
+      captureManager.galleryAddPic();
+      if (directories.size() > 0) {
+        String path = captureManager.getCurrentPhotoPath();
+        PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
+        directory.getPhotos().add(INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
+        directory.setCoverPath(path);
+        photoGridAdapter.notifyDataSetChanged();
+      }
+    } else if (requestCode == ImageCaptureManager.REQUEST_TAKE_VEDIO && resultCode == RESULT_OK) {
 
       if (captureManager == null) {
         FragmentActivity activity = getActivity();
@@ -257,7 +340,7 @@ public class PhotoPickerFragment extends Fragment {
         case PermissionsConstant.REQUEST_EXTERNAL_WRITE:
           if (PermissionsUtils.checkWriteStoragePermission(this) &&
                   PermissionsUtils.checkCameraPermission(this)) {
-            openCamera();
+            takeVedio();
           }
           break;
       }
@@ -269,13 +352,15 @@ public class PhotoPickerFragment extends Fragment {
   }
 
 
-  @Override public void onSaveInstanceState(Bundle outState) {
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
     captureManager.onSaveInstanceState(outState);
     super.onSaveInstanceState(outState);
   }
 
 
-  @Override public void onViewStateRestored(Bundle savedInstanceState) {
+  @Override
+  public void onViewStateRestored(Bundle savedInstanceState) {
     captureManager.onRestoreInstanceState(savedInstanceState);
     super.onViewStateRestored(savedInstanceState);
   }
@@ -293,7 +378,8 @@ public class PhotoPickerFragment extends Fragment {
     }
   }
 
-  @Override public void onDestroy() {
+  @Override
+  public void onDestroy() {
     super.onDestroy();
 
     if (directories == null) {
