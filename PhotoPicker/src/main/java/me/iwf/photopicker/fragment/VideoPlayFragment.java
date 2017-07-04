@@ -37,14 +37,10 @@ public class VideoPlayFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setContentView(R.layout.__picker_picker_fragment_videoplay_pager);
-
 
         String path = getArguments().getString(ARG_PATH);
 
         uri = Uri.parse(path);
-
-
     }
 
     @Nullable
@@ -52,7 +48,7 @@ public class VideoPlayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.__picker_picker_fragment_image_pager, container, false);
+        View rootView = inflater.inflate(R.layout.__picker_picker_fragment_videoplay_pager, container, false);
 
         videoView = (VideoView) rootView.findViewById(R.id.videoView);
         //设置视频控制器

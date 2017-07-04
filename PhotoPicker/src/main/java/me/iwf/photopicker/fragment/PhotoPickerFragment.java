@@ -215,7 +215,7 @@ public class PhotoPickerFragment extends Fragment {
 
                     ((PhotoPickerActivity) getActivity()).addImagePagerFragment(imagePagerFragment);
                 } else if (pickMedia.equalsIgnoreCase(PICK_VIDEO)) {
-                    VideoPlayFragment videoPlayFragment = VideoPlayFragment.newInstance(photos.get(position));
+                    VideoPlayFragment videoPlayFragment = VideoPlayFragment.newInstance(photos.get(position-1));
                     ((PhotoPickerActivity) getActivity()).addImagePagerFragment(videoPlayFragment);
                 }
 
