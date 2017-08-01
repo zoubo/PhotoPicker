@@ -46,6 +46,7 @@ import static me.iwf.photopicker.PhotoPicker.DEFAULT_COLUMN_NUMBER;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_PICK_MEDIA;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_PREVIEW_ENABLED;
 import static me.iwf.photopicker.PhotoPicker.EXTRA_SHOW_GIF;
+import static me.iwf.photopicker.PhotoPicker.KEY_SELECTED_PHOTOS;
 import static me.iwf.photopicker.PhotoPicker.PICK_PHOTO;
 import static me.iwf.photopicker.PhotoPicker.PICK_VIDEO;
 import static me.iwf.photopicker.utils.MediaStoreHelper.INDEX_ALL_PHOTOS;
@@ -308,14 +309,23 @@ public class PhotoPickerFragment extends Fragment {
                 captureManager = new ImageCaptureManager(activity);
             }
 
-            captureManager.galleryAddPic();
-            if (directories.size() > 0) {
-                String path = captureManager.getCurrentPhotoPath();
-                PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
-                directory.getPhotos().add(INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
-                directory.setCoverPath(path);
-                photoGridAdapter.notifyDataSetChanged();
-            }
+            String path = captureManager.getCurrentPhotoPath();
+
+            Intent intent = new Intent();
+            ArrayList<String> selectedPhotos = new ArrayList<String>();
+            selectedPhotos.add(path);
+            intent.putStringArrayListExtra(KEY_SELECTED_PHOTOS, selectedPhotos);
+            getActivity().setResult(RESULT_OK, intent);
+            getActivity().finish();
+
+//            captureManager.galleryAddPic();
+//            if (directories.size() > 0) {
+//                String path = captureManager.getCurrentPhotoPath();
+//                PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
+//                directory.getPhotos().add(INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
+//                directory.setCoverPath(path);
+//                photoGridAdapter.notifyDataSetChanged();
+//            }
         } else if (requestCode == ImageCaptureManager.REQUEST_TAKE_VEDIO && resultCode == RESULT_OK) {
 
             if (captureManager == null) {
@@ -323,14 +333,23 @@ public class PhotoPickerFragment extends Fragment {
                 captureManager = new ImageCaptureManager(activity);
             }
 
-            captureManager.galleryAddPic();
-            if (directories.size() > 0) {
-                String path = captureManager.getCurrentPhotoPath();
-                PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
-                directory.getPhotos().add(INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
-                directory.setCoverPath(path);
-                photoGridAdapter.notifyDataSetChanged();
-            }
+            String path = captureManager.getCurrentPhotoPath();
+
+            Intent intent = new Intent();
+            ArrayList<String> selectedPhotos = new ArrayList<String>();
+            selectedPhotos.add(path);
+            intent.putStringArrayListExtra(KEY_SELECTED_PHOTOS, selectedPhotos);
+            getActivity().setResult(RESULT_OK, intent);
+            getActivity().finish();
+
+//            captureManager.galleryAddPic();
+//            if (directories.size() > 0) {
+//                String path = captureManager.getCurrentPhotoPath();
+//                PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
+//                directory.getPhotos().add(INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
+//                directory.setCoverPath(path);
+//                photoGridAdapter.notifyDataSetChanged();
+//            }
         }
     }
 
