@@ -342,7 +342,7 @@ public class PhotoPickerFragment extends Fragment {
             getActivity().setResult(RESULT_OK, intent);
             getActivity().finish();
 
-//            captureManager.galleryAddPic();
+           captureManager.galleryAddPic();
 //            if (directories.size() > 0) {
 //                String path = captureManager.getCurrentPhotoPath();
 //                PhotoDirectory directory = directories.get(INDEX_ALL_PHOTOS);
