@@ -33,7 +33,8 @@ public class VedioDirectoryLoader extends CursorLoader {
                 MIME_TYPE + "=? or " + MIME_TYPE + "=? or " + MIME_TYPE + "=? or " + MIME_TYPE + "=? ");
         String[] selectionArgs;
 
-        selectionArgs = new String[]{"video/wmv", "video/mp4", "video/3gp"};
+        //        selectionArgs = new String[]{"video/wmv", "video/mp4", "video/3gp"};
+        selectionArgs = new String[]{"video/mpeg", "video/mp4", "video/3gpp"};
 
         setSelectionArgs(selectionArgs);
     }
