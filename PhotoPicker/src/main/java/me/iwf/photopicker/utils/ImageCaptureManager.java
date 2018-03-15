@@ -41,7 +41,8 @@ public class ImageCaptureManager {
     // Create an image file name
     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
     String imageFileName = "JPEG_" + timeStamp + ".jpg";
-    File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//     File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+     File storageDir = new File(Environment.getExternalStorageDirectory() + File.separator + "DCIM" + File.separator + "Camera");
 
     if (!storageDir.exists()) {
       if (!storageDir.mkdir()) {
@@ -61,7 +62,8 @@ public class ImageCaptureManager {
     // Create an image file name
     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
     String vedioFileName = "JPEG_" + timeStamp + ".mp4";
-    File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+//     File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+     File storageDir = new File(Environment.getExternalStorageDirectory() + File.separator + "DCIM" + File.separator + "Camera");
 
     if (!storageDir.exists()) {
       if (!storageDir.mkdir()) {
