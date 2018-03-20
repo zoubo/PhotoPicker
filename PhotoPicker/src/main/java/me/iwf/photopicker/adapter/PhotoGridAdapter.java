@@ -104,17 +104,17 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
 
       boolean canLoadImage = AndroidLifecycleUtils.canLoadImage(holder.ivPhoto.getContext());
 
-      if (canLoadImage) {
-        glide
-                .load(new File(photo.getPath()))
-                .centerCrop()
-                .dontAnimate()
-                .thumbnail(0.5f)
-                .override(imageSize, imageSize)
-                .placeholder(R.drawable.__picker_ic_photo_black_48dp)
-                .error(R.drawable.__picker_ic_broken_image_black_48dp)
-                .into(holder.ivPhoto);
-      }
+//       if (canLoadImage) {
+//         glide
+//                 .load(new File(photo.getPath()))
+//                 .centerCrop()
+//                 .dontAnimate()
+//                 .thumbnail(0.5f)
+//                 .override(imageSize, imageSize)
+//                 .placeholder(R.drawable.__picker_ic_photo_black_48dp)
+//                 .error(R.drawable.__picker_ic_broken_image_black_48dp)
+//                 .into(holder.ivPhoto);
+//       }
 
       final boolean isChecked = isSelected(photo);
 
@@ -216,7 +216,7 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
   }
 
   @Override public void onViewRecycled(PhotoViewHolder holder) {
-    Glide.clear(holder.ivPhoto);
+//     Glide.clear(holder.ivPhoto);
     super.onViewRecycled(holder);
   }
 }
