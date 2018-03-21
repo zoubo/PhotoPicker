@@ -113,7 +113,7 @@ public class PhotoPickerFragment extends Fragment {
         photoGridAdapter.setShowCamera(showCamera);
         photoGridAdapter.setPreviewEnable(previewEnable);
 
-        listAdapter = new PopupDirectoryListAdapter(mGlideRequestManager, directories);
+        listAdapter = new PopupDirectoryListAdapter(this.getContext(),mGlideRequestManager, directories);
 
         Bundle mediaStoreArgs = new Bundle();
 

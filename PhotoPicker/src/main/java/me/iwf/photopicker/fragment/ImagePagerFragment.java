@@ -117,7 +117,7 @@ public class ImagePagerFragment extends Fragment {
       thumbnailHeight = bundle.getInt(ARG_THUMBNAIL_HEIGHT);
     }
 
-    mPagerAdapter = new PhotoPagerAdapter(Glide.with(this), paths);
+    mPagerAdapter = new PhotoPagerAdapter(this.getContext(),Glide.with(this), paths);
   }
 
 

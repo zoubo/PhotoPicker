@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.io.File;
 import java.util.ArrayList;
 import me.iwf.photopicker.R;
@@ -28,6 +31,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
   final static int TYPE_PHOTO = 2;
 
   final static int MAX = 9;
+
+  private RequestOptions options = new RequestOptions()
+          .centerCrop()
+          .dontAnimate()
+          .placeholder(R.drawable.__picker_ic_photo_black_48dp)
+          .error(R.drawable.__picker_ic_broken_image_black_48dp)
+          .priority(Priority.HIGH);
 
   public PhotoAdapter(Context mContext, ArrayList<String> photoPaths) {
     this.photoPaths = photoPaths;
@@ -60,12 +70,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
       boolean canLoadImage = AndroidLifecycleUtils.canLoadImage(holder.ivPhoto.getContext());
 
       if (canLoadImage) {
+//        Glide.with(mContext)
+//                .load(uri)
+//                .centerCrop()
+//                .thumbnail(0.1f)
+//                .placeholder(R.drawable.__picker_ic_photo_black_48dp)
+//                .error(R.drawable.__picker_ic_broken_image_black_48dp)
+//                .into(holder.ivPhoto);
         Glide.with(mContext)
                 .load(uri)
-                .centerCrop()
                 .thumbnail(0.1f)
-                .placeholder(R.drawable.__picker_ic_photo_black_48dp)
-                .error(R.drawable.__picker_ic_broken_image_black_48dp)
+                .apply(options)
                 .into(holder.ivPhoto);
       }
     }

@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,14 +28,23 @@ public class PhotoPagerAdapter extends PagerAdapter {
 
   private List<String> paths = new ArrayList<>();
   private RequestManager mGlide;
+  private Context context;
 
-  public PhotoPagerAdapter(RequestManager glide, List<String> paths) {
+  private RequestOptions options = new RequestOptions()
+          .centerCrop()
+          .dontAnimate()
+          .override(800, 800)
+          .placeholder(R.drawable.__picker_ic_photo_black_48dp)
+          .error(R.drawable.__picker_ic_broken_image_black_48dp)
+          .priority(Priority.HIGH);
+
+  public PhotoPagerAdapter(Context context,RequestManager glide, List<String> paths) {
+    this.context=context;
     this.paths = paths;
     this.mGlide = glide;
   }
 
   @Override public Object instantiateItem(ViewGroup container, int position) {
-    final Context context = container.getContext();
     View itemView = LayoutInflater.from(context)
         .inflate(R.layout.__picker_picker_item_pager, container, false);
 
@@ -50,13 +61,18 @@ public class PhotoPagerAdapter extends PagerAdapter {
     boolean canLoadImage = AndroidLifecycleUtils.canLoadImage(context);
 
     if (canLoadImage) {
-      mGlide.load(uri)
+//      mGlide.load(uri)
+//              .thumbnail(0.1f)
+//              .dontAnimate()
+//              .dontTransform()
+//              .override(800, 800)
+//              .placeholder(R.drawable.__picker_ic_photo_black_48dp)
+//              .error(R.drawable.__picker_ic_broken_image_black_48dp)
+//              .into(imageView);
+      Glide.with(context)
+              .load(uri)
               .thumbnail(0.1f)
-              .dontAnimate()
-              .dontTransform()
-              .override(800, 800)
-              .placeholder(R.drawable.__picker_ic_photo_black_48dp)
-              .error(R.drawable.__picker_ic_broken_image_black_48dp)
+              .apply(options)
               .into(imageView);
     }
 
@@ -89,8 +105,10 @@ public class PhotoPagerAdapter extends PagerAdapter {
   @Override
   public void destroyItem(ViewGroup container, int position, Object object) {
     container.removeView((View) object);
-    Glide.clear((View) object);
+//    Glide.clear((View) object);
+    Glide.get(context).clearMemory();
   }
+
 
   @Override
   public int getItemPosition (Object object) { return POSITION_NONE; }
