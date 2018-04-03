@@ -105,6 +105,7 @@ public class ImageCaptureManager {
   public Intent dispatchTakeVedioIntent() throws IOException {
     Intent takePictureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     takePictureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30);
+    takePictureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,1);
     // Ensure that there's a camera activity to handle the intent
     if (takePictureIntent.resolveActivity(mContext.getPackageManager()) != null) {
       // Create the File where the photo should go
